@@ -37,7 +37,10 @@ RUN git clone --depth 1 https://github.com/0x4m4/hexstrike-ai.git hexstrike-ai
 WORKDIR /opt/hexstrike-ai
 
 # 4) Dependencias Python (Kali e PEP-668 "externally managed")
-RUN pip3 install --break-system-packages --no-cache-dir -r requirements.txt
+#    --ignore-installed: evita "Cannot uninstall <pkg> ... installed by debian"
+#    (ex.: pyperclip via apt) — o pip instala em /usr/local sem tentar remover
+#    os pacotes geridos pelo apt.
+RUN pip3 install --break-system-packages --no-cache-dir --ignore-installed -r requirements.txt
 
 EXPOSE 8888
 
