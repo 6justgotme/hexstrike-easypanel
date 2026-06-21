@@ -42,6 +42,22 @@ WORKDIR /opt/hexstrike-ai
 #    os pacotes geridos pelo apt.
 RUN pip3 install --break-system-packages --no-cache-dir --ignore-installed -r requirements.txt
 
+# 5) Cobertura ampla de ferramentas CLI do Kali (suites kali-tools-*).
+#    Camadas separadas + limpeza de cache para limitar o PICO de disco no build.
+#    --no-install-recommends: instala as ferramentas (Depends) sem GUI/docs extra.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        kali-tools-information-gathering kali-tools-web \
+    && apt-get clean && rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*.deb
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        kali-tools-vulnerability kali-tools-exploitation kali-tools-post-exploitation \
+    && apt-get clean && rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*.deb
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        kali-tools-passwords kali-tools-fuzzing kali-tools-database \
+    && apt-get clean && rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*.deb
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        kali-tools-forensics kali-tools-reverse-engineering kali-tools-sniffing-spoofing \
+    && apt-get clean && rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*.deb
+
 EXPOSE 8888
 
 # Healthcheck no endpoint /health do proprio servidor
