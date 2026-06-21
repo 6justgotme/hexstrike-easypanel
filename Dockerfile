@@ -58,6 +58,28 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         kali-tools-forensics kali-tools-reverse-engineering kali-tools-sniffing-spoofing \
     && apt-get clean && rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*.deb
 
+# 6) Ferramentas extras disponiveis no apt (com recommends para pegar tudo)
+RUN apt-get update && apt-get install -y \
+        subfinder arjun paramspider dirsearch httpie ghidra ropper python3-ropgadget \
+        sherlock uro hashcat-utils autorecon bulk-extractor steghide sleuthkit trivy \
+    && apt-get clean && rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*.deb
+
+# 7) Ferramentas Go que nao estao no apt (projectdiscovery / tomnomnom / jaeles).
+#    Compila para /usr/local/bin; tolera falha individual; limpa caches do Go.
+RUN apt-get update && apt-get install -y --no-install-recommends golang-go ca-certificates git \
+    && rm -rf /var/lib/apt/lists/* \
+    && for pkg in \
+         github.com/projectdiscovery/katana/cmd/katana@latest \
+         github.com/hahwul/dalfox/v2@latest \
+         github.com/lc/gau/v2/cmd/gau@latest \
+         github.com/tomnomnom/waybackurls@latest \
+         github.com/tomnomnom/qsreplace@latest \
+         github.com/tomnomnom/anew@latest \
+         github.com/jaeles-project/jaeles@latest ; do \
+           GOBIN=/usr/local/bin GOFLAGS=-buildvcs=false go install "$pkg" || echo "WARN: go install $pkg falhou"; \
+       done \
+    && rm -rf /root/go /root/.cache/go-build
+
 EXPOSE 8888
 
 # Healthcheck no endpoint /health do proprio servidor
